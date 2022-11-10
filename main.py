@@ -17,7 +17,6 @@ if __name__ == "__main__":
 #E4 1 3 W4                 
 #E5 2 4 W5                 
 '''
-
     graph = Graph(config_)
     print(graph)
     agent = HumanAgent(1, 2, graph)

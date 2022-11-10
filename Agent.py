@@ -21,7 +21,6 @@ class Agent:
     def change_current_node(self, new_node):
         self.current_node = new_node
 
-
     def change_current_state(self, ):
         pass
 
@@ -42,8 +41,8 @@ class Agent:
     # state[0]=state[1]
     # state[1]=state[0]
 
-    def update_state(self):
-        pass
+    def update_state(self, vertex):
+        self.current_state.update_state(vertex, self.world)
 
     def search(self):
         pass
@@ -62,7 +61,33 @@ class HumanAgent(Agent):
         super().__init__(id_, init_vertex, world)
 
     def run(self):
-        all_neighborhood = ""
-        for neighborhood in self.world.graph[self.current_node]:
-            all_neighborhood += str(neighborhood[0].id_) + "   "
-        user_input = int(input(f"pick a node from the following list: {all_neighborhood}"))
+        while (not self.terminated):
+            print("Current state: \n", self.current_state)
+            wrong_choice = True
+            all_neighborhood = ""
+            for neighborhood in self.world.graph[self.current_node]:
+                all_neighborhood += str(neighborhood[0].id_) + "   "
+            while wrong_choice:
+                user_input = "1"#input(f"pick a node from the following list: {all_neighborhood}")
+                if self.world.list_of_only_vertices[int(user_input)].is_broken or user_input not in all_neighborhood:
+                    print("please select different Node")
+                else:
+                    wrong_choice = False
+            self.moves += 1
+            self.current_node = self.world.list_of_only_vertices[int(user_input)]
+            self.current_node.peoples = 0
+            if self.current_node.is_brittle:
+                self.current_node.is_broken = True
+            self.current_state.update_state(self.current_node, self.world)
+            print("Current state: \n", self.current_state)
+            user_input_for_terminate = input("Press T if you wish to terminate")
+            if user_input_for_terminate == "T":
+                self.terminated = True
+
+        # self.moves = 0
+        # self.score = 0
+        # self.people_saved = 0
+        # self.id_ = id_
+        # self.terminated = False
+        # self.world = world
+        # self.current_node, self.current_state = self.build_next_state(init_vertex_string, world)

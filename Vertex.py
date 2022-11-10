@@ -4,6 +4,7 @@ class Vertex:
         self.id_ = id_
         self.peoples = peoples
         self.is_brittle = is_brittle
+        self.is_broken = False
 
     def get_is_brittle(self):
         return self.is_brittle
