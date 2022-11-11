@@ -1,8 +1,6 @@
 from Agent import HumanAgent
 from Graph import Graph
 
-
-
 if __name__ == "__main__":
     config_ = '''
 #N 4      
@@ -18,6 +16,6 @@ if __name__ == "__main__":
 #E5 2 4 W5                 
 '''
     graph = Graph(config_)
-    print(graph)
+    print(graph, "\n\n\n")
     agent = HumanAgent(1, 2, graph)
     agent.run()

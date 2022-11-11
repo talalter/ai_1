@@ -11,7 +11,10 @@ class State:
         return ""
 
     def check_goal(self):
-        return 0 not in self.peoples
+        for peoples in self.peoples:
+            if peoples != 0:
+                return False
+        return True
 
     def update_state(self, current_vertex, world):
         self.peoples = [vertex.peoples for vertex in world.list_of_only_vertices]

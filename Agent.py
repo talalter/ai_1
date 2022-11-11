@@ -61,14 +61,14 @@ class HumanAgent(Agent):
         super().__init__(id_, init_vertex, world)
 
     def run(self):
-        while (not self.terminated):
-            print("Current state: \n", self.current_state)
+        while not self.terminated:
+            print(self.current_state)
             wrong_choice = True
             all_neighborhood = ""
             for neighborhood in self.world.graph[self.current_node]:
                 all_neighborhood += str(neighborhood[0].id_) + "   "
             while wrong_choice:
-                user_input = "1"#input(f"pick a node from the following list: {all_neighborhood}")
+                user_input = input(f"pick a node from the following list: {all_neighborhood}")
                 if self.world.list_of_only_vertices[int(user_input)].is_broken or user_input not in all_neighborhood:
                     print("please select different Node")
                 else:
@@ -79,7 +79,10 @@ class HumanAgent(Agent):
             if self.current_node.is_brittle:
                 self.current_node.is_broken = True
             self.current_state.update_state(self.current_node, self.world)
-            print("Current state: \n", self.current_state)
+            print(self.current_state)
+            if self.current_state.check_goal():
+                self.terminated = True
+                break
             user_input_for_terminate = input("Press T if you wish to terminate")
             if user_input_for_terminate == "T":
                 self.terminated = True
