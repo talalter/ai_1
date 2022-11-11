@@ -82,15 +82,9 @@ class HumanAgent(Agent):
             print(self.current_state)
             if self.current_state.check_goal():
                 self.terminated = True
+                print ("ALL THE PEOPLES EVACUATED")
                 break
             user_input_for_terminate = input("Press T if you wish to terminate")
             if user_input_for_terminate == "T":
                 self.terminated = True
 
-        # self.moves = 0
-        # self.score = 0
-        # self.people_saved = 0
-        # self.id_ = id_
-        # self.terminated = False
-        # self.world = world
-        # self.current_node, self.current_state = self.build_next_state(init_vertex_string, world)
