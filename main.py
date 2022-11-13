@@ -1,4 +1,4 @@
-from Agent import HumanAgent
+from Agent import HumanAgent, StuipedGreedyAgent
 from Graph import Graph
 
 
@@ -26,7 +26,7 @@ if __name__ == "__main__":
     config_ = '''
 #N 4      
 #V1                  
-#V2 P12 B             
+#V2 P1 B             
 #V3 B                
 #V4 P2               
 
@@ -38,5 +38,10 @@ if __name__ == "__main__":
 '''
     graph = Graph(config_)
     print(graph, "\n\n\n")
-    agent = HumanAgent(1, 2, graph)
-    agent.run()
+    agent = StuipedGreedyAgent(0, graph.vertices[2])
+    graph.agent_locations[0] = graph.vertices[2]
+    action = agent.run(graph)
+    action()
+    print(action)
+    for vertex in graph.vertices:
+        print(vertex)
