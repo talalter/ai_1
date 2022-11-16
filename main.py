@@ -1,25 +1,20 @@
-from Agent import HumanAgent, StuipedGreedyAgent
+from Agent import HumanAgent, StupidGreedyAgent, SaboteurAgent
 from Graph import Graph
+from action import *
 
 
-
-def ask_for_agents():
-
-    agents = []
-    how_many_agents = (int(input("Insert how many agent you want")))
+def ask_for_agents(graph):
+    how_many_agents = (int(input("Insert how many agent you want\n")))
     for i in range(how_many_agents):
-        agent_type, start_vertex = input(f"Insert the type of the {i+1} agent\n1 for human\n2 for greedy\n\nInsert the starting vertex")
-        if(agent_type=="1"):
-            agents.append(HumanAgent(i), start_vertex, )
-
-class Environment:
-
-    def __init__ (self, world):
-        self.world = world
-
-
-
-
+        agent_type, = (int(input(f"Insert the type of the {i+1} agent\n1 for human\n2 for greedy\n3 for saboteur\n\n")))
+        start_vertex = (int(input("insert the starting vertex from 0-4\n\n")))
+        if agent_type == "1":
+            agents.append(HumanAgent(i))
+        if agent_type == "2":
+            agents.append(StupidGreedyAgent(i))
+        if agent_type == "3":
+            agents.append(SaboteurAgent(i))
+    return agents
 
 
 if __name__ == "__main__":
@@ -37,11 +32,18 @@ if __name__ == "__main__":
 #E5 2 4 W5                 
 '''
     graph = Graph(config_)
-    print(graph, "\n\n\n")
-    agent = StuipedGreedyAgent(0, graph.vertices[2])
-    graph.agent_locations[0] = graph.vertices[2]
-    action = agent.run(graph)
-    action()
-    print(action)
-    for vertex in graph.vertices:
-        print(vertex)
+    agents = [HumanAgent(0), StupidGreedyAgent(1)]
+    for agent in agents:
+        graph.agent_locations[agent] = graph.vertices[0]
+    #agents = ask_for_agents(agents,graph)
+    print(graph.agent_locations)
+    i = 0
+    while agents:
+        for agent in agents:
+            print("its "+type(agent).__name__+" %d turn %d\n" % (agent.id_, i))
+            action = agent(graph)
+            if action():
+                agents.remove(agent)
+                print(type(agent).__name__ +" %d has been removed\n" % agent.id_)
+        i+=1
+    print("simulation over\n")
