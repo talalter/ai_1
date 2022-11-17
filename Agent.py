@@ -1,18 +1,17 @@
 import sys
 from State import State
 from action import NoOpAction, TraverseAction, TerminateAction
-from Vertex import Vertex
 
 
 def dijkstra_algorithm(graph, start_node):
-    unvisited_nodes = [node for node in graph.vertices if not node.is_broken]
+    unvisited_nodes = [node for node in graph.vertices if not node.is_broken or node is start_node]
     shortest_path = {}
-    previous_nodes = {} 
+    previous_nodes = {}
     max_value = sys.maxsize
     for node in unvisited_nodes:
         shortest_path[node] = max_value
     shortest_path[start_node] = 0
-    
+
     while unvisited_nodes:
         current_min_node = None
         for node in unvisited_nodes:
@@ -51,7 +50,7 @@ class Agent:
         if seq[0].target_vertex.is_broken:
             return []
         if len(seq) == 0:
-            return seq 
+            return seq
         else:
             return seq[1:]
 
@@ -101,12 +100,9 @@ class StupidGreedyAgent(Agent):
         min_score = sys.maxsize
         target_vertex = None
         path_dict, dist_dict = dijkstra_algorithm(self.state.percept, self.state.current_vertex)
-        print(len(dist_dict.items()))
-        print(dist_dict.items())
-        print(path_dict)
         for vertex, score in dist_dict.items():
             if vertex.people and score:
-                if (score < min_score): ####################### or ((score == min_score) and (vertex.id_ < target_vertex.id_)):
+                if score < min_score:  # or ((score == min_score) and (vertex.id_ < target_vertex.id_)):
                     min_score = score
                     target_vertex = vertex
         if target_vertex is None:
@@ -124,3 +120,23 @@ class StupidGreedyAgent(Agent):
 class SaboteurAgent(Agent):
     def __init__(self, id_):
         super().__init__(id_)
+
+    def search(self):
+        min_score = sys.maxsize
+        target_vertex = None
+        path_dict, dist_dict = dijkstra_algorithm(self.state.percept, self.state.current_vertex)
+        for vertex, score in dist_dict.items():
+            if vertex.is_brittle and score:
+                if score < min_score:  # or ((score == min_score) and (vertex.id_ < target_vertex.id_)):
+                    min_score = score
+                    target_vertex = vertex
+        if target_vertex is None:
+            return [TerminateAction(self)]
+        if min_score == 0:
+            return [NoOpAction(self)]
+        seq = []
+        next_vertex = target_vertex
+        while next_vertex != self.state.current_vertex:
+            seq.insert(0, TraverseAction(self, next_vertex))
+            next_vertex = path_dict[next_vertex]
+        return seq

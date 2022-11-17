@@ -1,20 +1,24 @@
 from Agent import HumanAgent, StupidGreedyAgent, SaboteurAgent
 from Graph import Graph
-from action import *
 
 
-def ask_for_agents(graph):
+def ask_for_agents(graph): ############## TODO
     how_many_agents = (int(input("Insert how many agent you want\n")))
+    agents_list = []
     for i in range(how_many_agents):
-        agent_type, = (int(input(f"Insert the type of the {i+1} agent\n1 for human\n2 for greedy\n3 for saboteur\n\n")))
-        start_vertex = (int(input("insert the starting vertex from 0-4\n\n")))
-        if agent_type == "1":
-            agents.append(HumanAgent(i))
-        if agent_type == "2":
-            agents.append(StupidGreedyAgent(i))
-        if agent_type == "3":
-            agents.append(SaboteurAgent(i))
-    return agents
+        agent_type = (int(input("Insert the type of the agent\n1 for human\n2 for greedy\n3 for saboteur\n\n")))
+        start_vertex = (int(input("insert the starting vertex from 0-3\n\n")))
+        assert agent_type == 1 or 2 or 3
+        assert start_vertex == 0 or 1 or 2 or 3
+        if agent_type == 1:
+            agent_ = HumanAgent(i)
+        elif agent_type == 2:
+            agent_ = StupidGreedyAgent(i)
+        else:  # agent_type == "3"
+            agent_ = SaboteurAgent(i)
+        agents_list.append(agent_)
+        graph.agent_locations[agent_] = graph.vertices[start_vertex]
+    return agents_list
 
 
 if __name__ == "__main__":
@@ -32,11 +36,7 @@ if __name__ == "__main__":
 #E5 2 4 W5                 
 '''
     graph = Graph(config_)
-    agents = [HumanAgent(0), StupidGreedyAgent(1)]
-    for agent in agents:
-        graph.agent_locations[agent] = graph.vertices[0]
-    #agents = ask_for_agents(agents,graph)
-    print(graph.agent_locations)
+    agents = ask_for_agents(graph)
     i = 0
     while agents:
         for agent in agents:

@@ -16,6 +16,8 @@ class Action:
             self.agent.state.people_saved += self.target_vertex.people
             self.target_vertex.people = 0
         if self.target_vertex.is_brittle:
+            if self.target_vertex.is_broken:
+                print("ERROR? allready broken why break again")
             self.target_vertex.is_broken = True
 
 
