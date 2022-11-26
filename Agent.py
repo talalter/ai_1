@@ -31,6 +31,19 @@ def dijkstra_algorithm(graph, start_node):
         unvisited_nodes.remove(current_min_node)
     return previous_nodes, shortest_path
 
+def heuristic(graph, start_node):
+    min_score = sys.maxsize
+    target_vertex = None
+    path_dict, dist_dict = dijkstra_algorithm(graph, start_node)
+    for vertex, score in dist_dict.items():
+        if vertex.people and score:
+            if score < min_score:  # or ((score == min_score) and (vertex.id_ < target_vertex.id_)):
+                min_score = score
+                target_vertex = vertex
+    if target_vertex is None or min_score == 0:
+        return 0;
+    else:
+        return dist_dict[target_vertex]
 
 class Agent:
     def __init__(self, id_):
@@ -56,7 +69,7 @@ class Agent:
 
     def recommendation(self, seq, state):
         action = seq[0]
-        if type(action).__name__ == "TraverseAction" and action.target_vertex.is_broken:
+        if type(action) == TraverseAction and action.target_vertex.is_broken:
             return NoOpAction(self.state)
         return action
 
