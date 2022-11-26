@@ -31,6 +31,7 @@ def dijkstra_algorithm(graph, start_node):
         unvisited_nodes.remove(current_min_node)
     return previous_nodes, shortest_path
 
+
 def heuristic(graph, start_node):
     min_score = sys.maxsize
     target_vertex = None
@@ -41,9 +42,10 @@ def heuristic(graph, start_node):
                 min_score = score
                 target_vertex = vertex
     if target_vertex is None or min_score == 0:
-        return 0;
+        return 0
     else:
         return dist_dict[target_vertex]
+
 
 class Agent:
     def __init__(self, id_):
@@ -70,7 +72,7 @@ class Agent:
     def recommendation(self, seq, state):
         action = seq[0]
         if type(action) == TraverseAction and action.target_vertex.is_broken:
-            return NoOpAction(self.state)
+            return NoOpAction(self.state, False)
         return action
 
     def __call__(self, percept):
@@ -96,13 +98,13 @@ class HumanAgent(Agent):
             if target_vertex_id == -1:
                 return [TerminateAction(self)]
             if target_vertex_id == self.state.current_vertex.id_:
-                return [NoOpAction(self)]
+                return [NoOpAction(self, True)]
             linked_vertexes_id = map(lambda x: x[0].id_, self.state.percept.graph_dict[
                 self.state.percept.vertices[self.state.current_vertex.id_]])
             if target_vertex_id not in linked_vertexes_id:
                 print("cannot go to {} from {}\n".format(target_vertex_id, self.state.current_vertex.id_))
                 continue
-            return [TraverseAction(self, self.state.percept.vertices[target_vertex_id])]
+            return [TraverseAction(self, self.state.percept.vertices[target_vertex_id], True)]
 
 
 class StupidGreedyAgent(Agent):
@@ -121,11 +123,11 @@ class StupidGreedyAgent(Agent):
         if target_vertex is None:
             return [TerminateAction(self)]
         if min_score == 0:
-            return [NoOpAction(self)]
+            return [NoOpAction(self, True)]
         seq = []
         next_vertex = target_vertex
         while next_vertex != self.state.current_vertex:
-            seq.insert(0, TraverseAction(self, next_vertex))
+            seq.insert(0, TraverseAction(self, next_vertex, True))
             next_vertex = path_dict[next_vertex]
         return seq
 
@@ -146,10 +148,10 @@ class SaboteurAgent(Agent):
         if target_vertex is None:
             return [TerminateAction(self)]
         if min_score == 0:
-            return [NoOpAction(self)]
+            return [NoOpAction(self, False)]
         seq = []
         next_vertex = target_vertex
         while next_vertex != self.state.current_vertex:
-            seq.insert(0, TraverseAction(self, next_vertex))
+            seq.insert(0, TraverseAction(self, next_vertex, False))
             next_vertex = path_dict[next_vertex]
         return seq
