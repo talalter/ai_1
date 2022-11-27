@@ -1,4 +1,5 @@
 import sys
+from queue import PriorityQueue
 from State import State
 from action import NoOpAction, TraverseAction, TerminateAction
 
@@ -46,6 +47,90 @@ def heuristic(graph, start_node):
     else:
         return dist_dict[target_vertex]
 
+
+def a_star_algorithm(start_node, graph, h, limit):
+    people_list = [vertex.people for vertex in graph.vertices]
+    broken_list = [vertex.is_broken for vertex in graph.vertices]
+
+    # open_list is a list of nodes which have been visited, but who's neighbors
+    # haven't all been inspected, starts off with the start node
+    # closed_list is a list of nodes which have been visited
+    # and who's neighbors have been inspected
+    open_list = {start_node : (people_list, broken_list)}
+    closed_list = set([])
+
+    # g contains current distances from start_node to all other nodes
+    # the default value (if it's not found in the map) is +infinity
+    g = {start_node: 0}
+
+    # parents contains an adjacency map of all nodes
+    parents = {start_node: start_node}
+
+    counter = 0
+    while len(open_list) > 0:
+        n = None
+
+        # find a node with the lowest value of f() - evaluation function
+        for v in open_list:
+            if n is None or g[v] + h(v) < g[n] + h(n):
+                n = v
+        if n is None:
+            return None
+
+        people_list, broken_list = open_list[n]
+        people_list[n.id_] = 0
+        if n.is_brittle:
+            broken_list[n.id_] = True
+
+        # if the current node is the stop_node
+        # then we begin reconstructing the path from it to the start_node
+        if counter == limit or people_list.count(0) == len(people_list):
+            reconst_path = []
+
+            while parents[n] != n:
+                reconst_path.append(n)
+                n = parents[n]
+
+            reconst_path.append(start_node)
+
+            reconst_path.reverse()
+            return reconst_path
+
+        # for all neighbors of the current node do
+        for (target_vertex, weight) in graph.graph_dict[n]:
+            if broken_list[target_vertex.id_]:
+                continue
+
+            # if the current node isn't in both open_list and closed_list
+            # add it to open_list and note n as it's parent
+            if target_vertex not in open_list and target_vertex not in closed_list:
+                target_people_list = people_list.copy()
+                target_broken_list = broken_list.copy()
+                open_list[target_vertex] = (target_people_list, target_broken_list)
+                parents[target_vertex] = n
+                g[target_vertex] = g[n] + weight
+
+            # otherwise, check if it's quicker to first visit n, then m
+            # and if it is, update parent data and g data
+            # and if the node was in the closed_list, move it to open_list
+            else:
+                if g[target_vertex] > g[n] + weight:
+                    g[target_vertex] = g[n] + weight
+                    parents[target_vertex] = n
+
+                    if target_vertex in closed_list:
+                        closed_list.remove(target_vertex)
+                        target_people_list = people_list.copy()
+                        target_broken_list = broken_list.copy()
+                        open_list[target_vertex] = (target_people_list, target_broken_list)
+
+        # remove n from the open_list, and add it to closed_list
+        # because all of his neighbors were inspected
+        del open_list[n]
+        closed_list.add(n)
+        counter += 1
+
+    return None
 
 class Agent:
     def __init__(self, id_):
