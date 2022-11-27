@@ -48,86 +48,66 @@ def heuristic(graph, start_node):
         return dist_dict[target_vertex]
 
 
-def a_star_algorithm(start_node, graph, h, limit):
+def even_better_a_star(start_node, graph, h, limit):
     people_list = [vertex.people for vertex in graph.vertices]
     broken_list = [vertex.is_broken for vertex in graph.vertices]
-
-    # open_list is a list of nodes which have been visited, but who's neighbors
-    # haven't all been inspected, starts off with the start node
-    # closed_list is a list of nodes which have been visited
-    # and who's neighbors have been inspected
-    open_list = {start_node : (people_list, broken_list)}
+    pq = PriorityQueue()
     closed_list = set([])
-
-    # g contains current distances from start_node to all other nodes
-    # the default value (if it's not found in the map) is +infinity
-    g = {start_node: 0}
-
-    # parents contains an adjacency map of all nodes
-    parents = {start_node: start_node}
-
+    pq.put((0, (start_node, people_list, broken_list)))
+    g = {(start_node, people_list, broken_list): 0}
+    parents = {(start_node, people_list, broken_list): (start_node, people_list, broken_list)}
     counter = 0
-    while len(open_list) > 0:
-        n = None
-
-        # find a node with the lowest value of f() - evaluation function
-        for v in open_list:
-            if n is None or g[v] + h(v) < g[n] + h(n):
-                n = v
-        if n is None:
-            return None
-
-        people_list, broken_list = open_list[n]
-        people_list[n.id_] = 0
-        if n.is_brittle:
-            broken_list[n.id_] = True
-
-        # if the current node is the stop_node
-        # then we begin reconstructing the path from it to the start_node
+    while pq:
+        me = pq.get()
+        v, people_list, broken_list = me
         if counter == limit or people_list.count(0) == len(people_list):
             reconst_path = []
 
-            while parents[n] != n:
-                reconst_path.append(n)
-                n = parents[n]
+            while parents[me] != me:
+                reconst_path.append(me)
+                me = parents[me]
 
-            reconst_path.append(start_node)
+            reconst_path.append((start_node, people_list, broken_list))
 
             reconst_path.reverse()
             return reconst_path
 
-        # for all neighbors of the current node do
-        for (target_vertex, weight) in graph.graph_dict[n]:
+        for (target_vertex, weight) in graph.graph_dict[v]:
             if broken_list[target_vertex.id_]:
-                continue
-
-            # if the current node isn't in both open_list and closed_list
-            # add it to open_list and note n as it's parent
-            if target_vertex not in open_list and target_vertex not in closed_list:
+                continue####################no closed list
+            if (target_vertex, target_people_list, target_broken_list) not in pq and (target_vertex, target_people_list, target_broken_list) not in closed_list:
                 target_people_list = people_list.copy()
                 target_broken_list = broken_list.copy()
-                open_list[target_vertex] = (target_people_list, target_broken_list)
-                parents[target_vertex] = n
-                g[target_vertex] = g[n] + weight
+                if target_people_list[target_vertex.id_] is not 0:
+                    target_people_list[target_vertex.id_] = 0
 
-            # otherwise, check if it's quicker to first visit n, then m
-            # and if it is, update parent data and g data
-            # and if the node was in the closed_list, move it to open_list
+                if v.is_brittle:
+                    target_broken_list[target_vertex.id_] = True
+                parents[(target_vertex, target_people_list, target_broken_list)] = me
+                g[(target_vertex, target_people_list, target_broken_list)] = g[me] + weight
+                pq.put((g[(target_vertex, target_people_list, target_broken_list)]+h(target_vertex, target_people_list, target_broken_list), (target_vertex, target_people_list, target_broken_list)))
+
             else:
-                if g[target_vertex] > g[n] + weight:
-                    g[target_vertex] = g[n] + weight
-                    parents[target_vertex] = n
+                if g[(target_vertex, target_people_list, target_broken_list)] > g[me] + weight:
+                    g[(target_vertex, target_people_list, target_broken_list)] = g[me] + weight
+                    parents[target_vertex] = me
 
                     if target_vertex in closed_list:
-                        closed_list.remove(target_vertex)
+                        closed_list.remove((target_vertex, target_people_list, target_broken_list))
                         target_people_list = people_list.copy()
                         target_broken_list = broken_list.copy()
-                        open_list[target_vertex] = (target_people_list, target_broken_list)
+                        if target_people_list[target_vertex.id_] is not 0:
+                            target_people_list[target_vertex.id_] = 0
 
-        # remove n from the open_list, and add it to closed_list
-        # because all of his neighbors were inspected
-        del open_list[n]
-        closed_list.add(n)
+                        if v.is_brittle:
+                            target_broken_list[target_vertex.id_] = True
+                        parents[(target_vertex, target_people_list, target_broken_list)] = me
+                        g[(target_vertex, target_people_list, target_broken_list)] = g[me] + weight
+                        pq.put((g[(target_vertex, target_people_list, target_broken_list)] + h(target_vertex,
+                                                                                               target_people_list,
+                                                                                               target_broken_list),
+                                (target_vertex, target_people_list, target_broken_list)))
+        closed_list.add(me)
         counter += 1
 
     return None
