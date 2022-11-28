@@ -67,13 +67,8 @@ def aStar(start_node, graph, h, limit):
                 reconst_path.append(v)
                 v = parents[v]
 
-            reconst_path.append(StateNode(start_node, people_list, broken_list))
-
             reconst_path.reverse()
-            print(parents)
-            print(reconst_path)
             return reconst_path
-        print("for is for:"+str(v))
         for (target_vertex, weight) in graph.graph_dict[current_vertex]:
             if broken_list[target_vertex.id_]:
                 continue
@@ -102,8 +97,6 @@ def aStar(start_node, graph, h, limit):
                         parents[u] = v
                         g[u] = g[v] + weight
                         pq.put((g[u] + h(u), u))
-            print("i am:" + str(u))
-            print("and my father is"+str(parents[u]))
         closed_list.add(v)
         counter += 1
 
@@ -227,6 +220,5 @@ class AStarAgent(Agent):
         temp = aStar(self.state.current_vertex, self.state.percept, heuristic, 10000)
         if len(temp) == 0:
             return [TerminateAction(self)]
-        seq = map(lambda x: TraverseAction(self, x.node, True), temp)
-        print(seq[0])
+        seq = list(map(lambda x: TraverseAction(self, x.node, True), temp))
         return seq
