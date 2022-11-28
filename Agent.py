@@ -1,6 +1,7 @@
 import sys
 from queue import PriorityQueue
 from State import State
+from StateNode import StateNode
 from action import NoOpAction, TraverseAction, TerminateAction
 
 
@@ -34,12 +35,13 @@ def dijkstra_algorithm(graph, start_node):
 
 
 def heuristic(graph, state_node):
-    vertex, people_list, broken_list = state_node
-    sum = 0
-    for node in graph.vertices:
-        if people_list[node.id_] > 0:
-            sum += min([tup[1] for tup in graph.graph_dict[node]])
-    return sum
+    return 0
+    # vertex, people_list, broken_list = state_node
+    # sum = 0
+    # for node in graph.vertices:
+    #     if people_list[node.id_] > 0:
+    #         sum += min([tup[1] for tup in graph.graph_dict[node]])
+    # return sum
 
 
 
@@ -48,27 +50,30 @@ def aStar(start_node, graph, h, limit):
     start_broken_list = [vertex.is_broken for vertex in graph.vertices]
     pq = PriorityQueue()
     closed_list = set([])
-    pq.put((0, (start_node, start_people_list, start_broken_list)))
-    g = {(start_node, start_people_list, start_broken_list): 0}
-    parents = {(start_node, start_people_list, start_broken_list): (start_node, start_people_list, start_broken_list)}
+    pq.put((0, StateNode(start_node, start_people_list, start_broken_list)))
+    g = {StateNode(start_node, start_people_list, start_broken_list): 0}
+    parents = {StateNode(start_node, start_people_list, start_broken_list): StateNode(start_node, start_people_list,
+                                                                                      start_broken_list)}
     counter = 0
     while pq:
-        v = pq.get()
-        current_vertex, people_list, broken_list = v
-        if counter == 0 or counter == 10000:
+        if counter == 10000:
             return []
+        v = pq.get()[1]
+        current_vertex, people_list, broken_list = v.get_info()
         if counter == limit or people_list.count(0) == len(people_list):
             reconst_path = []
 
             while parents[v] != v:
                 reconst_path.append(v)
-                me = parents[me]
+                v = parents[v]
 
-            reconst_path.append((start_node, people_list, broken_list))
+            reconst_path.append(StateNode(start_node, people_list, broken_list))
 
             reconst_path.reverse()
+            print(parents)
+            print(reconst_path)
             return reconst_path
-
+        print("for is for:"+str(v))
         for (target_vertex, weight) in graph.graph_dict[current_vertex]:
             if broken_list[target_vertex.id_]:
                 continue
@@ -79,27 +84,30 @@ def aStar(start_node, graph, h, limit):
 
             if target_vertex.is_brittle:
                 target_broken_list[target_vertex.id_] = True
-            u = (target_vertex, target_people_list, target_broken_list)
+            u = StateNode(target_vertex, target_people_list, target_broken_list)
 
-            if u not in pq and u not in closed_list:
+            if u not in [item[1] for item in pq.queue] and u not in closed_list:
                 parents[u] = v
                 g[u] = g[v] + weight
-                pq.put((g[u]+h(u), u))
+                f = g[u] + heuristic(graph, u)
+                pq.put((f, u))
 
             else:
                 if g[u] > g[v] + weight:
                     g[u] = g[v] + weight
-                    parents[target_vertex] = v
+                    parents[u] = v
 
                     if target_vertex in closed_list:
                         closed_list.remove(u)
                         parents[u] = v
                         g[u] = g[v] + weight
                         pq.put((g[u] + h(u), u))
+            print("i am:" + str(u))
+            print("and my father is"+str(parents[u]))
         closed_list.add(v)
         counter += 1
 
-    return None
+    return []
 
 
 class Agent:
@@ -219,6 +227,6 @@ class AStarAgent(Agent):
         temp = aStar(self.state.current_vertex, self.state.percept, heuristic, 10000)
         if len(temp) == 0:
             return [TerminateAction(self)]
-        seq = map(lambda x: TraverseAction(self, x[0], True), temp)
-        print(seq)
+        seq = map(lambda x: TraverseAction(self, x.node, True), temp)
+        print(seq[0])
         return seq

@@ -35,7 +35,16 @@ if __name__ == "__main__":
 #E4 1 3 W4                 
 #E5 2 4 W5                 
 '''
-    graph = Graph(config_)
+    config_1 = '''
+#N 3      
+#V1                  
+#V2 P1            
+#V3 P3                
+
+#E1 1 2 W1                 
+#E2 1 3 W2                                
+'''
+    graph = Graph(config_1)
     #agents = ask_for_agents(graph)
     agent_ = AStarAgent(0)
     graph.agent_locations[agent_] = graph.vertices[0]
