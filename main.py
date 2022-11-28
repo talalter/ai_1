@@ -1,4 +1,4 @@
-from Agent import HumanAgent, StupidGreedyAgent, SaboteurAgent
+from Agent import HumanAgent, StupidGreedyAgent, SaboteurAgent,AStarAgent
 from Graph import Graph
 
 
@@ -36,7 +36,10 @@ if __name__ == "__main__":
 #E5 2 4 W5                 
 '''
     graph = Graph(config_)
-    agents = ask_for_agents(graph)
+    #agents = ask_for_agents(graph)
+    agent_ = AStarAgent(0)
+    graph.agent_locations[agent_] = graph.vertices[0]
+    agents = [agent_]
     i = 0
     while agents:
         for agent in agents:

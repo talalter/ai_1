@@ -33,38 +33,35 @@ def dijkstra_algorithm(graph, start_node):
     return previous_nodes, shortest_path
 
 
-def heuristic(graph, start_node):
-    min_score = sys.maxsize
-    target_vertex = None
-    path_dict, dist_dict = dijkstra_algorithm(graph, start_node)
-    for vertex, score in dist_dict.items():
-        if vertex.people and score:
-            if score < min_score:  # or ((score == min_score) and (vertex.id_ < target_vertex.id_)):
-                min_score = score
-                target_vertex = vertex
-    if target_vertex is None or min_score == 0:
-        return 0
-    else:
-        return dist_dict[target_vertex]
+def heuristic(graph, state_node):
+    vertex, people_list, broken_list = state_node
+    sum = 0
+    for node in graph.vertices:
+        if people_list[node.id_] > 0:
+            sum += min([tup[1] for tup in graph.graph_dict[node]])
+    return sum
 
 
-def even_better_a_star(start_node, graph, h, limit):
-    people_list = [vertex.people for vertex in graph.vertices]
-    broken_list = [vertex.is_broken for vertex in graph.vertices]
+
+def aStar(start_node, graph, h, limit):
+    start_people_list = [vertex.people for vertex in graph.vertices]
+    start_broken_list = [vertex.is_broken for vertex in graph.vertices]
     pq = PriorityQueue()
     closed_list = set([])
-    pq.put((0, (start_node, people_list, broken_list)))
-    g = {(start_node, people_list, broken_list): 0}
-    parents = {(start_node, people_list, broken_list): (start_node, people_list, broken_list)}
+    pq.put((0, (start_node, start_people_list, start_broken_list)))
+    g = {(start_node, start_people_list, start_broken_list): 0}
+    parents = {(start_node, start_people_list, start_broken_list): (start_node, start_people_list, start_broken_list)}
     counter = 0
     while pq:
-        me = pq.get()
-        v, people_list, broken_list = me
+        v = pq.get()
+        current_vertex, people_list, broken_list = v
+        if counter == 0 or counter == 10000:
+            return []
         if counter == limit or people_list.count(0) == len(people_list):
             reconst_path = []
 
-            while parents[me] != me:
-                reconst_path.append(me)
+            while parents[v] != v:
+                reconst_path.append(v)
                 me = parents[me]
 
             reconst_path.append((start_node, people_list, broken_list))
@@ -72,45 +69,38 @@ def even_better_a_star(start_node, graph, h, limit):
             reconst_path.reverse()
             return reconst_path
 
-        for (target_vertex, weight) in graph.graph_dict[v]:
+        for (target_vertex, weight) in graph.graph_dict[current_vertex]:
             if broken_list[target_vertex.id_]:
-                continue####################no closed list
-            if (target_vertex, target_people_list, target_broken_list) not in pq and (target_vertex, target_people_list, target_broken_list) not in closed_list:
-                target_people_list = people_list.copy()
-                target_broken_list = broken_list.copy()
-                if target_people_list[target_vertex.id_] is not 0:
-                    target_people_list[target_vertex.id_] = 0
+                continue
+            target_people_list = people_list.copy()
+            target_broken_list = broken_list.copy()
+            if target_people_list[target_vertex.id_] != 0:
+                target_people_list[target_vertex.id_] = 0
 
-                if v.is_brittle:
-                    target_broken_list[target_vertex.id_] = True
-                parents[(target_vertex, target_people_list, target_broken_list)] = me
-                g[(target_vertex, target_people_list, target_broken_list)] = g[me] + weight
-                pq.put((g[(target_vertex, target_people_list, target_broken_list)]+h(target_vertex, target_people_list, target_broken_list), (target_vertex, target_people_list, target_broken_list)))
+            if target_vertex.is_brittle:
+                target_broken_list[target_vertex.id_] = True
+            u = (target_vertex, target_people_list, target_broken_list)
+
+            if u not in pq and u not in closed_list:
+                parents[u] = v
+                g[u] = g[v] + weight
+                pq.put((g[u]+h(u), u))
 
             else:
-                if g[(target_vertex, target_people_list, target_broken_list)] > g[me] + weight:
-                    g[(target_vertex, target_people_list, target_broken_list)] = g[me] + weight
-                    parents[target_vertex] = me
+                if g[u] > g[v] + weight:
+                    g[u] = g[v] + weight
+                    parents[target_vertex] = v
 
                     if target_vertex in closed_list:
-                        closed_list.remove((target_vertex, target_people_list, target_broken_list))
-                        target_people_list = people_list.copy()
-                        target_broken_list = broken_list.copy()
-                        if target_people_list[target_vertex.id_] is not 0:
-                            target_people_list[target_vertex.id_] = 0
-
-                        if v.is_brittle:
-                            target_broken_list[target_vertex.id_] = True
-                        parents[(target_vertex, target_people_list, target_broken_list)] = me
-                        g[(target_vertex, target_people_list, target_broken_list)] = g[me] + weight
-                        pq.put((g[(target_vertex, target_people_list, target_broken_list)] + h(target_vertex,
-                                                                                               target_people_list,
-                                                                                               target_broken_list),
-                                (target_vertex, target_people_list, target_broken_list)))
-        closed_list.add(me)
+                        closed_list.remove(u)
+                        parents[u] = v
+                        g[u] = g[v] + weight
+                        pq.put((g[u] + h(u), u))
+        closed_list.add(v)
         counter += 1
 
     return None
+
 
 class Agent:
     def __init__(self, id_):
@@ -219,4 +209,16 @@ class SaboteurAgent(Agent):
         while next_vertex != self.state.current_vertex:
             seq.insert(0, TraverseAction(self, next_vertex, False))
             next_vertex = path_dict[next_vertex]
+        return seq
+
+class AStarAgent(Agent):
+    def __init__(self, id_):
+        super().__init__(id_)
+
+    def search(self):
+        temp = aStar(self.state.current_vertex, self.state.percept, heuristic, 10000)
+        if len(temp) == 0:
+            return [TerminateAction(self)]
+        seq = map(lambda x: TraverseAction(self, x[0], True), temp)
+        print(seq)
         return seq
