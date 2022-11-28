@@ -118,14 +118,16 @@ class Agent:
         raise NotImplementedError
 
     def remainder(self, seq, state):
-        if seq[0].target_vertex.is_broken:
-            return []
         if len(seq) == 0:
-            return seq
+            return []
+        if seq[0].target_vertex.is_broken and type(seq[0]) == TraverseAction:
+            return []
         else:
             return seq[1:]
 
     def recommendation(self, seq, state):
+        if len(seq) == 0:
+            return TerminateAction(self)
         action = seq[0]
         if type(action) == TraverseAction and action.target_vertex.is_broken:
             return NoOpAction(self.state, False)
@@ -215,10 +217,7 @@ class SaboteurAgent(Agent):
 class AStarAgent(Agent):
     def __init__(self, id_):
         super().__init__(id_)
-
     def search(self):
         temp = aStar(self.state.current_vertex, self.state.percept, heuristic, 10000)
-        if len(temp) == 0:
-            return [TerminateAction(self)]
         seq = list(map(lambda x: TraverseAction(self, x.node, True), temp))
         return seq
