@@ -1,24 +1,51 @@
-from Agent import HumanAgent, StupidGreedyAgent, SaboteurAgent,AStarAgent
+from Agent import HumanAgent, StupidGreedyAgent, SaboteurAgent, AStarAgent, GreedyAStarAgent, RealTimeAStarAgent
 from Graph import Graph
 
 
-def ask_for_agents(graph): ############## TODO
+def ask_for_agents(graph):
     how_many_agents = (int(input("Insert how many agent you want\n")))
     agents_list = []
     for i in range(how_many_agents):
-        agent_type = (int(input("Insert the type of the agent\n1 for human\n2 for greedy\n3 for saboteur\n\n")))
+        agent_type = (int(input(
+            "Insert the type of the agent\n1 for human\n2 for greedy\n3 for saboteur\n4 for greedyAStar\n5 for AStar\n6 for RealTimeAStar\n\n")))
         start_vertex = (int(input("insert the starting vertex from 0-3\n\n")))
-        assert agent_type == 1 or 2 or 3
-        assert start_vertex == 0 or 1 or 2 or 3
+        assert agent_type == 1 or 2 or 3 or 4 or 5 or 6
+        assert graph.num_of_vertices > start_vertex >= 0
         if agent_type == 1:
-            agent_ = HumanAgent(i)
+            agent = HumanAgent(i)
         elif agent_type == 2:
-            agent_ = StupidGreedyAgent(i)
-        else:  # agent_type == "3"
-            agent_ = SaboteurAgent(i)
-        agents_list.append(agent_)
-        graph.agent_locations[agent_] = graph.vertices[start_vertex]
+            agent = StupidGreedyAgent(i)
+        elif agent_type == 3:
+            agent = SaboteurAgent(i)
+        elif agent_type == 4:
+            agent = GreedyAStarAgent(i, (int(input("insert T for agent\n\n"))), (int(input("insert L for agent\n\n"))))
+        elif agent_type == 5:
+            agent = AStarAgent(i, (int(input("insert T for agent\n\n"))))
+        elif agent_type == 6:
+            agent = RealTimeAStarAgent(i, (int(input("insert T for agent\n\n"))), (int(input("insert L for agent\n\n"))))
+        else:
+            print("agent Type not recognized")
+            i -= 1
+            continue
+        agents_list.append(agent)
+        graph.agent_locations[agent] = graph.vertices[start_vertex]
     return agents_list
+
+
+def run_agents(graph, agents):
+    i = 0
+    while agents:
+        for agent in agents:
+            print("its " + type(agent).__name__ + " %d turn %d" % (agent.id_, i))
+            action = agent(graph)
+            if action():
+                agents.remove(agent)
+                print(type(
+                    agent).__name__ + " %d has been removed with a score of %f saved %d with the time of %d\n" % (
+                          agent.id_, ((agent.state.people_saved * 1000) - agent.state.time), agent.state.people_saved,
+                          agent.state.time))
+        i += 1
+    print("simulation over\n")
 
 
 if __name__ == "__main__":
@@ -44,18 +71,57 @@ if __name__ == "__main__":
 #E1 1 2 W1                 
 #E2 1 3 W2                                
 '''
+    # agents = ask_for_agents(graph)
     graph = Graph(config_)
-    #agents = ask_for_agents(graph)
-    agent_ = AStarAgent(0)
-    graph.agent_locations[agent_] = graph.vertices[0]
-    agents = [agent_]
-    i = 0
-    while agents:
-        for agent in agents:
-            print("its "+type(agent).__name__+" %d turn %d\n" % (agent.id_, i))
-            action = agent(graph)
-            if action():
-                agents.remove(agent)
-                print(type(agent).__name__ +" %d has been removed\n" % agent.id_)
-        i+=1
-    print("simulation over\n")
+    agent = AStarAgent(0)
+    graph.agent_locations[agent] = graph.vertices[0]
+    agents = [agent]
+    run_agents(graph, agents)
+
+    graph = Graph(config_)
+    agent = AStarAgent(1, 0.000001)
+    graph.agent_locations[agent] = graph.vertices[0]
+    agents = [agent]
+    run_agents(graph, agents)
+
+    graph = Graph(config_)
+    agent = AStarAgent(2, 0.01)
+    graph.agent_locations[agent] = graph.vertices[0]
+    agents = [agent]
+    run_agents(graph, agents)
+
+    graph = Graph(config_)
+    agent = GreedyAStarAgent(0)
+    graph.agent_locations[agent] = graph.vertices[0]
+    agents = [agent]
+    run_agents(graph, agents)
+
+    graph = Graph(config_)
+    agent = GreedyAStarAgent(1, 0.000001)
+    graph.agent_locations[agent] = graph.vertices[0]
+    agents = [agent]
+    run_agents(graph, agents)
+
+    graph = Graph(config_)
+    agent = GreedyAStarAgent(2, 0.01)
+    graph.agent_locations[agent] = graph.vertices[0]
+    agents = [agent]
+    run_agents(graph, agents)
+
+    graph = Graph(config_)
+    agent = RealTimeAStarAgent(0)
+    graph.agent_locations[agent] = graph.vertices[0]
+    agents = [agent]
+    run_agents(graph, agents)
+
+    graph = Graph(config_)
+    agent = RealTimeAStarAgent(1, 0.000001)
+    graph.agent_locations[agent] = graph.vertices[0]
+    agents = [agent]
+    run_agents(graph, agents)
+
+    graph = Graph(config_)
+    agent = RealTimeAStarAgent(2, 0.01)
+    graph.agent_locations[agent] = graph.vertices[0]
+    agents = [agent]
+    run_agents(graph, agents)

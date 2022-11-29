@@ -1,7 +1,6 @@
 class State:
     def __init__(self):
         self.percept = None
-        self.score = 0
         self.time = 0
         self.people_saved = 0
         self.current_vertex = None

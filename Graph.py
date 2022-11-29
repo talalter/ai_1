@@ -46,8 +46,6 @@ class Graph:
         self.graph_dict = self.build_dict_graph()
         self.agent_locations = {}
         self.total_number_of_people_evacuated = 0
-        self.time = 0
-        self.actions = 0
 
     def build_dict_graph(self):
         dict_graph = dict()

@@ -14,6 +14,7 @@ class Action:
         self.graph.change_agent_location(self.agent, self.target_vertex)
         if pickup:
             self.agent.state.people_saved += self.target_vertex.people
+            self.graph.total_number_of_people_evacuated += self.target_vertex.people
             self.target_vertex.people = 0
         if self.target_vertex.is_brittle:
             self.target_vertex.is_broken = True
