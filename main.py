@@ -34,15 +34,17 @@ def ask_for_agents(graph):
 def run_agents(graph, agents):
     i = 0
     while agents:
+        runnable_agents = []
         for agent in agents:
             print("its " + type(agent).__name__ + " %d turn %d" % (agent.id_, i))
             action = agent(graph)
-            if action():
-                agents.remove(agent)
+            if not action():
+                runnable_agents.append(agent)
                 print(type(
                     agent).__name__ + " %d has been removed with a score of %f saved %d with the time of %d\n" % (
                           agent.id_, ((agent.state.people_saved * 1000) - agent.state.time), agent.state.people_saved,
                           agent.state.time))
+        agents = runnable_agents
         i += 1
     print("simulation over\n")
 
