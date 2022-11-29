@@ -8,7 +8,7 @@ def ask_for_agents(graph):
     for i in range(how_many_agents):
         agent_type = (int(input(
             "Insert the type of the agent\n1 for human\n2 for greedy\n3 for saboteur\n4 for greedyAStar\n5 for AStar\n6 for RealTimeAStar\n\n")))
-        start_vertex = (int(input("insert the starting vertex from 0-3\n\n")))
+        start_vertex = (int(input("insert the starting vertex from 0-5\n\n")))
         assert agent_type == 1 or 2 or 3 or 4 or 5 or 6
         assert graph.num_of_vertices > start_vertex >= 0
         if agent_type == 1:
