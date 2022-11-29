@@ -34,20 +34,46 @@ def dijkstra_algorithm(graph, start_node):
         unvisited_nodes.remove(current_min_node)
     return previous_nodes, shortest_path
 
+def new_dijkstra_algorithm(graph, start_node, broken_list):
+    unvisited_nodes = [node for node in graph.vertices if not broken_list[node.id_] or node is start_node]
+    shortest_path = {}
+    previous_nodes = {}
+    max_value = sys.maxsize
+    for node in unvisited_nodes:
+        shortest_path[node] = max_value
+    shortest_path[start_node] = 0
+
+    while unvisited_nodes:
+        current_min_node = None
+        for node in unvisited_nodes:
+            if current_min_node is None:
+                current_min_node = node
+            elif shortest_path[node] < shortest_path[current_min_node]:
+                current_min_node = node
+
+        neighbors = graph.graph_dict[current_min_node]
+        for neighbor in neighbors:
+            if not broken_list[neighbor[0].id_]:
+                tentative_value = shortest_path[current_min_node] + neighbor[1]
+                if tentative_value < shortest_path[neighbor[0]]:
+                    shortest_path[neighbor[0]] = tentative_value
+                    previous_nodes[neighbor[0]] = current_min_node
+
+        unvisited_nodes.remove(current_min_node)
+    return previous_nodes, shortest_path
+
 
 def heuristic(graph, state_node):
     G = nx.Graph()
     current_vertex, people_list, broken_list = state_node.get_info()
-    for index, vertex in enumerate(graph.vertices):
-        if people_list[index] and not broken_list[index]:
-            G.add_node(vertex)
-    for vertex_in_graph in list(G.nodes):
-        _, shortest_path_to_each_vertex = dijkstra_algorithm(graph, vertex_in_graph)
-        for vertex_key, weight in shortest_path_to_each_vertex.items():
-            G.add_edge(vertex_in_graph, vertex_key, weight=weight)
+    important_nodes = [node for node in graph.vertices if (not node.is_broken and people_list[node.id_]) or node is current_vertex]
+    for current_vertex in list(G.nodes):
+        _, weight = new_dijkstra_algorithm(graph, current_vertex)
+        for node in important_nodes:
+            if weight[node.id_] != 0:
+                G.add_edge(current_vertex, node, weight=weight)
     mst = nx.minimum_spanning_tree(G)
-    return mst.size()
-
+    return mst.size(weight="weight")
 
 def aStar(start_node, graph, limit):
     start_people_list = [vertex.people for vertex in graph.vertices]

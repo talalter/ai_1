@@ -25,7 +25,6 @@ def ask_for_agents(graph):
             agent = RealTimeAStarAgent(i, (int(input("insert T for agent\n\n"))), (int(input("insert L for agent\n\n"))))
         else:
             print("agent Type not recognized")
-            i -= 1
             continue
         agents_list.append(agent)
         graph.agent_locations[agent] = graph.vertices[start_vertex]
@@ -49,79 +48,62 @@ def run_agents(graph, agents):
 
 
 if __name__ == "__main__":
-    config_ = '''
-#N 4      
-#V1                  
-#V2 P1 B             
-#V3 B                
-#V4 P2               
-
-#E1 1 2 W1                 
-#E2 3 4 W1                 
-#E3 2 3 W1                 
-#E4 1 3 W4                 
-#E5 2 4 W5                 
-'''
-    config_1 = '''
-#N 3      
-#V1                  
-#V2 P1            
-#V3 P3                
-
-#E1 1 2 W1                 
-#E2 1 3 W2                                
-'''
-    # agents = ask_for_agents(graph)
-    graph = Graph(config_)
-    agent = AStarAgent(0)
-    graph.agent_locations[agent] = graph.vertices[0]
-    agents = [agent]
+    with open('input_graph.txt') as f:
+        input_txt = f.read()
+    graph = Graph(input_txt)
+    agents = ask_for_agents(graph)
     run_agents(graph, agents)
 
-    graph = Graph(config_)
-    agent = AStarAgent(1, 0.000001)
-    graph.agent_locations[agent] = graph.vertices[0]
-    agents = [agent]
-    run_agents(graph, agents)
-
-    graph = Graph(config_)
-    agent = AStarAgent(2, 0.01)
-    graph.agent_locations[agent] = graph.vertices[0]
-    agents = [agent]
-    run_agents(graph, agents)
-
-    graph = Graph(config_)
-    agent = GreedyAStarAgent(0)
-    graph.agent_locations[agent] = graph.vertices[0]
-    agents = [agent]
-    run_agents(graph, agents)
-
-    graph = Graph(config_)
-    agent = GreedyAStarAgent(1, 0.000001)
-    graph.agent_locations[agent] = graph.vertices[0]
-    agents = [agent]
-    run_agents(graph, agents)
-
-    graph = Graph(config_)
-    agent = GreedyAStarAgent(2, 0.01)
-    graph.agent_locations[agent] = graph.vertices[0]
-    agents = [agent]
-    run_agents(graph, agents)
-
-    graph = Graph(config_)
-    agent = RealTimeAStarAgent(0)
-    graph.agent_locations[agent] = graph.vertices[0]
-    agents = [agent]
-    run_agents(graph, agents)
-
-    graph = Graph(config_)
-    agent = RealTimeAStarAgent(1, 0.000001)
-    graph.agent_locations[agent] = graph.vertices[0]
-    agents = [agent]
-    run_agents(graph, agents)
-
-    graph = Graph(config_)
-    agent = RealTimeAStarAgent(2, 0.01)
-    graph.agent_locations[agent] = graph.vertices[0]
-    agents = [agent]
-    run_agents(graph, agents)
+    # graph = Graph(input_txt)
+    # agent = AStarAgent(0)
+    # graph.agent_locations[agent] = graph.vertices[0]
+    # agents = [agent]
+    # run_agents(graph, agents)
+    #
+    # graph = Graph(input_txt)
+    # agent = AStarAgent(1, 0.000001)
+    # graph.agent_locations[agent] = graph.vertices[0]
+    # agents = [agent]
+    # run_agents(graph, agents)
+    #
+    # graph = Graph(input_txt)
+    # agent = AStarAgent(2, 0.01)
+    # graph.agent_locations[agent] = graph.vertices[0]
+    # agents = [agent]
+    # run_agents(graph, agents)
+    #
+    # graph = Graph(input_txt)
+    # agent = GreedyAStarAgent(0)
+    # graph.agent_locations[agent] = graph.vertices[0]
+    # agents = [agent]
+    # run_agents(graph, agents)
+    #
+    # graph = Graph(input_txt)
+    # agent = GreedyAStarAgent(1, 0.000001)
+    # graph.agent_locations[agent] = graph.vertices[0]
+    # agents = [agent]
+    # run_agents(graph, agents)
+    #
+    # graph = Graph(input_txt)
+    # agent = GreedyAStarAgent(2, 0.01)
+    # graph.agent_locations[agent] = graph.vertices[0]
+    # agents = [agent]
+    # run_agents(graph, agents)
+    #
+    # graph = Graph(input_txt)
+    # agent = RealTimeAStarAgent(0)
+    # graph.agent_locations[agent] = graph.vertices[0]
+    # agents = [agent]
+    # run_agents(graph, agents)
+    #
+    # graph = Graph(input_txt)
+    # agent = RealTimeAStarAgent(1, 0.000001)
+    # graph.agent_locations[agent] = graph.vertices[0]
+    # agents = [agent]
+    # run_agents(graph, agents)
+    #
+    # graph = Graph(input_txt)
+    # agent = RealTimeAStarAgent(2, 0.01)
+    # graph.agent_locations[agent] = graph.vertices[0]
+    # agents = [agent]
+    # run_agents(graph, agents)
