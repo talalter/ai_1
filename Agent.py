@@ -34,6 +34,7 @@ def dijkstra_algorithm(graph, start_node):
         unvisited_nodes.remove(current_min_node)
     return previous_nodes, shortest_path
 
+
 def new_dijkstra_algorithm(graph, start_node, broken_list):
     unvisited_nodes = [node for node in graph.vertices if not broken_list[node.id_] or node is start_node]
     shortest_path = {}
@@ -42,7 +43,6 @@ def new_dijkstra_algorithm(graph, start_node, broken_list):
     for node in unvisited_nodes:
         shortest_path[node] = max_value
     shortest_path[start_node] = 0
-
     while unvisited_nodes:
         current_min_node = None
         for node in unvisited_nodes:
@@ -66,11 +66,13 @@ def new_dijkstra_algorithm(graph, start_node, broken_list):
 def heuristic(graph, state_node):
     G = nx.Graph()
     current_vertex, people_list, broken_list = state_node.get_info()
-    important_nodes = [node for node in graph.vertices if (not node.is_broken and people_list[node.id_]) or node is current_vertex]
-    for current_vertex in list(G.nodes):
-        _, weight = new_dijkstra_algorithm(graph, current_vertex)
+    important_nodes = [node for node in graph.vertices if (not broken_list[node.id_] and people_list[node.id_]) or node is current_vertex]
+    for current_vertex in important_nodes:
+        _, weight = new_dijkstra_algorithm(graph, current_vertex, broken_list)
         for node in important_nodes:
-            if weight[node.id_] != 0:
+            if weight[node] == sys.maxsize:
+                return sys.maxsize;
+            if weight[node] != 0:
                 G.add_edge(current_vertex, node, weight=weight)
     mst = nx.minimum_spanning_tree(G)
     return mst.size(weight="weight")
@@ -78,14 +80,14 @@ def heuristic(graph, state_node):
 def aStar(start_node, graph, limit):
     start_people_list = [vertex.people for vertex in graph.vertices]
     start_broken_list = [vertex.is_broken for vertex in graph.vertices]
+    start_StateNode = StateNode(start_node, start_people_list, start_broken_list)
     pq = PriorityQueue()
     closed_list = set([])
-    pq.put((0, StateNode(start_node, start_people_list, start_broken_list)))
-    g = {StateNode(start_node, start_people_list, start_broken_list): 0}
-    parents = {StateNode(start_node, start_people_list, start_broken_list): StateNode(start_node, start_people_list,
-                                                                                      start_broken_list)}
+    pq.put((0, start_StateNode))
+    g = {start_StateNode: 0}
+    parents = {start_StateNode: start_StateNode}
     counter = 0
-    while pq and counter != 10000:
+    while pq.queue and counter != 10000:
         v = pq.get()[1]
         current_vertex, people_list, broken_list = v.get_info()
         if counter == limit or people_list.count(0) == len(people_list):
@@ -94,9 +96,9 @@ def aStar(start_node, graph, limit):
             while parents[v] != v:
                 reconst_path.append(v)
                 v = parents[v]
-
             reconst_path.reverse()
             return reconst_path, counter
+
         for (target_vertex, weight) in graph.graph_dict[current_vertex]:
             if broken_list[target_vertex.id_]:
                 continue
@@ -186,8 +188,6 @@ class HumanAgent(Agent):
                 continue
             if target_vertex_id == -1:
                 return [TerminateAction(self)]
-            if target_vertex_id == self.state.current_vertex.id_:
-                return [NoOpAction(self, True)]
             linked_vertexes_id = map(lambda x: x[0].id_, self.state.percept.graph_dict[
                 self.state.percept.vertices[self.state.current_vertex.id_]])
             if target_vertex_id not in linked_vertexes_id:
@@ -211,8 +211,6 @@ class StupidGreedyAgent(Agent):
                     target_vertex = vertex
         if target_vertex is None:
             return [TerminateAction(self)]
-        if min_score == 0:
-            return [NoOpAction(self, True)]
         seq = []
         next_vertex = target_vertex
         while next_vertex != self.state.current_vertex:
@@ -236,8 +234,6 @@ class SaboteurAgent(Agent):
                     target_vertex = vertex
         if target_vertex is None:
             return [TerminateAction(self)]
-        if min_score == 0:
-            return [NoOpAction(self, False)]
         seq = []
         next_vertex = target_vertex
         while next_vertex != self.state.current_vertex:
@@ -265,7 +261,7 @@ class RealTimeAStarAgent(Agent):
         self.l = l
 
     def search(self):
-        temp, n= aStar(self.state.current_vertex, self.state.percept, self.l)
+        temp, n = aStar(self.state.current_vertex, self.state.percept, self.l)
         seq = list(map(lambda x: TraverseAction(self, x.node, True), temp))
         self.state.time += n * self.t
         return seq

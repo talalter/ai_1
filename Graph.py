@@ -66,6 +66,16 @@ class Graph:
         print("agent %d has moved from %d to %d\n" % (agent.id_, self.agent_locations[agent].id_, vertex.id_))
         self.agent_locations[agent] = vertex
 
+    def insert_agent(self, agent, vertexid, pickup):
+        vertex = self.vertices[vertexid]
+        self.agent_locations[agent] = vertex
+        if pickup:
+            agent.state.people_saved += vertex.people
+            self.total_number_of_people_evacuated += vertex.people
+            vertex.people = 0
+        if vertex.is_brittle:
+            vertex.is_broken = True
+
     def __repr__(self):
         res = ""
         for vertex in self.graph_dict:
