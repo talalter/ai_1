@@ -70,60 +70,60 @@ def run_agents(graph, agents):
 if __name__ == "__main__":
     with open('input_graph.txt') as f:
         input_txt = f.read()
+    graph = Graph(input_txt)
+    agents = ask_for_agents(graph)
+    run_agents(graph, agents)
+
     # graph = Graph(input_txt)
-    # agents = ask_for_agents(graph)
+    # agent = AStarAgent(0)
+    # graph.insert_agent(agent, 0, True)
+    # agents = [agent]
     # run_agents(graph, agents)
-
-    graph = Graph(input_txt)
-    agent = AStarAgent(0)
-    graph.insert_agent(agent, 0, True)
-    agents = [agent]
-    run_agents(graph, agents)
-
-    graph = Graph(input_txt)
-    agent = AStarAgent(1, 0.000001)
-    graph.insert_agent(agent, 0, True)
-    agents = [agent]
-    run_agents(graph, agents)
-
-    graph = Graph(input_txt)
-    agent = AStarAgent(2, 0.01)
-    graph.insert_agent(agent, 0, True)
-    agents = [agent]
-    run_agents(graph, agents)
-
-    graph = Graph(input_txt)
-    agent = GreedyAStarAgent(0)
-    graph.insert_agent(agent, 0, True)
-    agents = [agent]
-    run_agents(graph, agents)
-
-    graph = Graph(input_txt)
-    agent = GreedyAStarAgent(1, 0.000001)
-    graph.insert_agent(agent, 0, True)
-    agents = [agent]
-    run_agents(graph, agents)
-
-    graph = Graph(input_txt)
-    agent = GreedyAStarAgent(2, 0.01)
-    graph.insert_agent(agent, 0, True)
-    agents = [agent]
-    run_agents(graph, agents)
-
-    graph = Graph(input_txt)
-    agent = RealTimeAStarAgent(0)
-    graph.insert_agent(agent, 0, True)
-    agents = [agent]
-    run_agents(graph, agents)
-
-    graph = Graph(input_txt)
-    agent = RealTimeAStarAgent(1, 0.000001)
-    graph.insert_agent(agent, 0, True)
-    agents = [agent]
-    run_agents(graph, agents)
-
-    graph = Graph(input_txt)
-    agent = RealTimeAStarAgent(2, 0.01)
-    graph.insert_agent(agent, 0, True)
-    agents = [agent]
-    run_agents(graph, agents)
+    #
+    # graph = Graph(input_txt)
+    # agent = AStarAgent(1, 0.000001)
+    # graph.insert_agent(agent, 0, True)
+    # agents = [agent]
+    # run_agents(graph, agents)
+    #
+    # graph = Graph(input_txt)
+    # agent = AStarAgent(2, 0.01)
+    # graph.insert_agent(agent, 0, True)
+    # agents = [agent]
+    # run_agents(graph, agents)
+    #
+    # graph = Graph(input_txt)
+    # agent = GreedyAStarAgent(0)
+    # graph.insert_agent(agent, 0, True)
+    # agents = [agent]
+    # run_agents(graph, agents)
+    #
+    # graph = Graph(input_txt)
+    # agent = GreedyAStarAgent(1, 0.000001)
+    # graph.insert_agent(agent, 0, True)
+    # agents = [agent]
+    # run_agents(graph, agents)
+    #
+    # graph = Graph(input_txt)
+    # agent = GreedyAStarAgent(2, 0.01)
+    # graph.insert_agent(agent, 0, True)
+    # agents = [agent]
+    # run_agents(graph, agents)
+    #
+    # graph = Graph(input_txt)
+    # agent = RealTimeAStarAgent(0)
+    # graph.insert_agent(agent, 0, True)
+    # agents = [agent]
+    # run_agents(graph, agents)
+    #
+    # graph = Graph(input_txt)
+    # agent = RealTimeAStarAgent(1, 0.000001)
+    # graph.insert_agent(agent, 0, True)
+    # agents = [agent]
+    # run_agents(graph, agents)
+    #
+    # graph = Graph(input_txt)
+    # agent = RealTimeAStarAgent(2, 0.01)
+    # graph.insert_agent(agent, 0, True)
+    # agents = [agent]
+    # run_agents(graph, agents)

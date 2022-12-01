@@ -170,7 +170,7 @@ class Agent:
             return TerminateAction(self)
         action = seq[0]
         if type(action) == TraverseAction and action.target_vertex.is_broken:
-            return NoOpAction(self.state, False)
+            return NoOpAction(self, False)
         return action
 
     def __call__(self, percept):
