@@ -36,7 +36,7 @@ def dijkstra_algorithm(graph, start_node):
 
 
 def new_dijkstra_algorithm(graph, start_node, broken_list):
-    unvisited_nodes = [node for node in graph.vertices if not broken_list[node.id_] or node is start_node]
+    unvisited_nodes = [node for node in graph.vertices]
     shortest_path = {}
     previous_nodes = {}
     max_value = sys.maxsize
@@ -65,17 +65,24 @@ def new_dijkstra_algorithm(graph, start_node, broken_list):
 
 def heuristic(graph, state_node):
     G = nx.Graph()
-    current_vertex, people_list, broken_list = state_node.get_info()
-    important_nodes = [node for node in graph.vertices if (not broken_list[node.id_] and people_list[node.id_]) or node is current_vertex]
+    starting_vertex, people_list, broken_list = state_node.get_info()
+    important_nodes = [node for node in graph.vertices if people_list[node.id_]]
+    _, weight = new_dijkstra_algorithm(graph, starting_vertex, broken_list)
+    for node in important_nodes: #we do this only for starting node here because if it is broken they cant go to it
+        if weight[node] == sys.maxsize:
+            return sys.maxsize
+        if weight[node] != 0:
+            G.add_edge(starting_vertex, node, weight=weight[node])
     for current_vertex in important_nodes:
         _, weight = new_dijkstra_algorithm(graph, current_vertex, broken_list)
         for node in important_nodes:
             if weight[node] == sys.maxsize:
-                return sys.maxsize;
+                return sys.maxsize
             if weight[node] != 0:
-                G.add_edge(current_vertex, node, weight=weight)
+                G.add_edge(current_vertex, node, weight=weight[node])
     mst = nx.minimum_spanning_tree(G)
     return mst.size(weight="weight")
+
 
 def aStar(start_node, graph, limit):
     start_people_list = [vertex.people for vertex in graph.vertices]
@@ -102,7 +109,7 @@ def aStar(start_node, graph, limit):
         for (target_vertex, weight) in graph.graph_dict[current_vertex]:
             if broken_list[target_vertex.id_]:
                 continue
-            target_people_list = people_list.copy()
+            target_people_list = people_list.copy() # make the neighbor state node
             target_broken_list = broken_list.copy()
             if target_people_list[target_vertex.id_] != 0:
                 target_people_list[target_vertex.id_] = 0
@@ -111,8 +118,8 @@ def aStar(start_node, graph, limit):
                 target_broken_list[target_vertex.id_] = True
             u = StateNode(target_vertex, target_people_list, target_broken_list)
             h = heuristic(graph, u)
-            if h == sys.maxsize:
-                continue
+            if h == sys.maxsize:  # this also checks if the goal state is achievable
+                continue  # no possible way to achive goal from this statenode
             if u not in [item[1] for item in pq.queue] and u not in closed_list:
                 parents[u] = v
                 g[u] = g[v] + weight
@@ -130,7 +137,7 @@ def aStar(start_node, graph, limit):
                         g[u] = g[v] + weight
                         pq.put((g[u] + h, u))
         closed_list.add(v)
-        counter += 1
+    counter += 1
     if counter == 10000:
         print("AStar Failed")
     return [], counter
@@ -249,7 +256,7 @@ class AStarAgent(Agent):
 
     def search(self):
         temp, n = aStar(self.state.current_vertex, self.state.percept, -1)
-        seq= list(map(lambda x: TraverseAction(self, x.node, True), temp))
+        seq = list(map(lambda x: TraverseAction(self, x.node, True), temp))
         self.state.time += n * self.t
         return seq
 

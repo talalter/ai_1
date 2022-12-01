@@ -13,22 +13,24 @@ def ask_for_agents(graph):
         assert graph.num_of_vertices > start_vertex >= 0
         if agent_type == 1:
             agent = HumanAgent(i)
-            graph.insert_agent(agent, agent_type, True)
+            graph.insert_agent(agent, start_vertex, True)
         elif agent_type == 2:
             agent = StupidGreedyAgent(i)
-            graph.insert_agent(agent, agent_type, True)
+            graph.insert_agent(agent, start_vertex, True)
         elif agent_type == 3:
             agent = SaboteurAgent(i)
-            graph.insert_agent(agent, agent_type, False)
+            graph.insert_agent(agent, start_vertex, False)
         elif agent_type == 4:
-            agent = GreedyAStarAgent(i, (int(input("insert T for agent\n\n"))), (int(input("insert L for agent\n\n"))))
-            graph.insert_agent(agent, agent_type, True)
+            agent = GreedyAStarAgent(i, (int(input("insert T for agent\n\n"))),
+                                     (int(input("insert Limit for agent\n\n"))))
+            graph.insert_agent(agent, start_vertex, True)
         elif agent_type == 5:
             agent = AStarAgent(i, (int(input("insert T for agent\n\n"))))
-            graph.insert_agent(agent, agent_type, True)
+            graph.insert_agent(agent, start_vertex, True)
         elif agent_type == 6:
-            agent = RealTimeAStarAgent(i, (int(input("insert T for agent\n\n"))), (int(input("insert L for agent\n\n"))))
-            graph.insert_agent(agent, agent_type, True)
+            agent = RealTimeAStarAgent(i, (int(input("insert T for agent\n\n"))),
+                                       (int(input("insert LIMIT for agent\n\n"))))
+            graph.insert_agent(agent, start_vertex, True)
         else:
             print("agent Type not recognized")
             continue
@@ -37,6 +39,7 @@ def ask_for_agents(graph):
 
 
 def run_agents(graph, agents):
+    print("new simulation start")
     i = 0
     while agents:
         runnable_agents = []
@@ -45,12 +48,22 @@ def run_agents(graph, agents):
             action = agent(graph)
             if not action():
                 runnable_agents.append(agent)
-                print(type(
-                    agent).__name__ + " %d has been removed with a score of %f saved %d with the time of %d\n" % (
-                          agent.id_, ((agent.state.people_saved * 1000) - agent.state.time), agent.state.people_saved,
-                          agent.state.time))
+            else:
+                if type(agent) == AStarAgent or type(agent) == RealTimeAStarAgent or type(agent) == GreedyAStarAgent:
+                    print(type(
+                        agent).__name__ + " %d has been removed with a score of %f saved %d with the time of %d and T was %f\n" % (
+                              agent.id_, ((agent.state.people_saved * 1000) - agent.state.time),
+                              agent.state.people_saved,
+                              agent.state.time, agent.t))
+                else:
+                    print(type(
+                        agent).__name__ + " %d has been removed with a score of %f saved %d with the time of %d\n" % (
+                              agent.id_, ((agent.state.people_saved * 1000) - agent.state.time),
+                              agent.state.people_saved,
+                              agent.state.time))
         agents = runnable_agents
         i += 1
+    print("total people saved:%d/%d" % (graph.total_number_of_people_evacuated, graph.people_to_save))
     print("simulation over\n")
 
 

@@ -46,6 +46,7 @@ class Graph:
         self.graph_dict = self.build_dict_graph()
         self.agent_locations = {}
         self.total_number_of_people_evacuated = 0
+        self.people_to_save = sum([node.people for node in self.vertices])
 
     def build_dict_graph(self):
         dict_graph = dict()
