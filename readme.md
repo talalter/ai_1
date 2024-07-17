@@ -1,4 +1,4 @@
-to run the code you need to run main.py, we used python 3.10.8
+To run the code you need to run main.py, we used python 3.10.8
 we imported some external libraries
 to change the graph you need to change it in the file "input_graph.txt" and use the same format as
 #N 4
